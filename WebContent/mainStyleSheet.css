@@ -1,0 +1,48 @@
+@CHARSET "UTF-8";
+
+#navBar
+{
+	position:fixed;
+	top:0;
+	left:0;
+	right:0;
+	margin:0;
+	width:100%;
+	min-width:1024px;
+	height:48px;
+}
+#navbarList
+{
+	margin:0;
+	height:48px;
+	text-align:justify;
+}
+.navbar-nav {
+	    display: flex;
+	    justify-content: center;
+	    flex-wrap: wrap;
+}
+@media (min-width: 768px) {
+    .navbar-nav {
+        float: none;
+	}	
+}
+.navbar-nav > li{
+	  padding-left:50px;
+	  padding-right:50px;
+}
+.logo-nav{
+	max-height:100%; max-width:100%; margin:0pt;
+}
+body{
+	background-color:#f5f5ef;
+}
+.navbar-brand{
+	padding:0pt;
+}
+.tone1{
+	background-color:#efefe7;
+}
+.tone2{
+	background-color:#f5f5ef;
+}
