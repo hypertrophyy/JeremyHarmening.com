@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Breakout</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<link rel="stylesheet" href="mainStyleSheet.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <style>
+		canvas { background: #eee; display: block; margin:auto; margin-top:75px; padding-top: 0px;}
+	</style>
+</head>
+
+<body>
+
+	<nav class="navbar navbar-default navbar-fixed-top">
+	  <div class="container-fluid">
+	    <div class="navbar-header">
+	    	<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span> 
+	      </button>
+	      <a class="navbar-brand" href="index.html">
+	      <img class=logo-nav src="images/logo2.png" alt="logo"/></a>
+	    </div>
+	    <div class="collapse navbar-collapse" id="myNavbar">
+		    <ul class="nav navbar-nav">
+		     <!-- <li class="active"><a href="#">Home</a></li> -->
+		      <li><a href="CourseWork.html">Course Work</a></li>
+		      <li class = "dropdown">
+		      	<a class = "dropdown-toggle" data-toggle = "dropdown" href="#">Projects
+		      		<span class = "caret"></span>
+		      	</a>
+		      	<ul class = "dropdown-menu">
+		      		<li><a href = "Projects.html">Full Projects</a>
+		      		<li><a href = "JavascriptDemos.html">Javascript Demo Pages</a>
+		      	</ul>
+		      </li>
+		      <li><a href= "AboutMe.html">About Me</a></li>
+		      <li class="dropdown">
+			      <a class="dropdown-toggle" data-toggle="dropdown" href="#">Resume
+			      <span class="caret"></span></a>
+			      <ul class="dropdown-menu">
+			          <li><a href="files/Jeremy_Harmening_Resume 2018.docx" download >Word Doc</a></li>
+			          <li><a href="files/Jeremy_Harmening_Resume 2018.pdf" download >PDF</a></li>
+	         	 </ul>
+	          </li>
+		    </ul>
+		 </div>
+	   </div>
+	</nav>
+	
+	<canvas id = "myCanvas" width = "480" height = "320">
+	</canvas>
+	
+	<script>
+		var canvas = document.getElementById("myCanvas");
+		var ctx = canvas.getContext("2d");	//method which returns a CanvasRenderingContext2D Object
+		var x = canvas.width/2;	//starting x position of ball
+		var y = canvas.height-30;	//starting y position of ball
+		var dx = 3.5;	//change per iteration for x axis
+		var dy = -3.5;	// .... for y axis
+		var ballRadius = 10;
+		var paddleHeight = 10;
+		var paddleWidth = 60;
+		var paddleX = (canvas.width-paddleWidth)/2;
+		var rightPressed = false;
+		var leftPressed = false;
+		var brickRowCount = 3;
+		var brickColumnCount = 5;
+		var brickWidth = 75;
+		var brickHeight = 20;
+		var brickPadding = 10;
+		var brickOffsetTop = 30;
+		var brickOffsetLeft = 30;
+		var bricks = [];
+		var lives = 2;
+		var score = 0;
+		
+		for(var c = 0; c < brickColumnCount; c++)	//initialize bricks array
+		{
+			bricks[c] = [];
+			for(var r = 0; r < brickRowCount; r++)
+				bricks[c][r] = { x: 0, y: 0 , alive: true};
+		}
+		
+		document.addEventListener("keydown",keyDownHandler,false);	//look for the "keydown" event, then execute keyDownHandler()
+		document.addEventListener("keyup",keyUpHandler,false);
+		
+		function keyDownHandler(e)
+		{
+			if(e.keyCode == 39)
+				rightPressed = true;
+			else if(e.keyCode == 37)
+				leftPressed = true;
+		}
+		
+		function keyUpHandler(e)
+		{
+			if(e.keyCode == 39)
+				rightPressed = false;
+			if(e.keyCode == 37)
+				leftPressed = false;
+		}
+		
+		function drawBricks()
+		{
+			for(var c = 0; c < brickColumnCount; c++)	
+				for(var r = 0; r < brickRowCount; r++)
+				{
+					bricks[c][r].x = -brickWidth;	//put this brick out of the canvas
+					bricks[c][r].y = -brickHeight;
+					
+					if(bricks[c][r].alive == true)	//if brick is alive we initialize it
+					{
+						var brickX = ( c * (brickWidth + brickPadding)) + brickOffsetLeft;	//drawing location of bricks
+						var brickY = ( r * (brickHeight + brickPadding)) + brickOffsetTop;
+						
+						bricks[c][r].x = brickX;	
+						bricks[c][r].y = brickY;
+						ctx.beginPath;
+						ctx.rect(brickX,brickY,brickWidth,brickHeight);
+						ctx.fillStyle = "red";
+						ctx.fill()
+						ctx.closePath();
+					}
+				}
+					
+		}
+		
+		function drawBall()
+		{
+			ctx.beginPath()		//path to draw circle / ball
+			ctx.arc(x,y,ballRadius,0,Math.PI*2);
+			ctx.fillStyle = "blue";
+			ctx.fill()
+			ctx.closePath();
+		}
+		function drawBallOnHit()
+		{
+			ctx.beginPath()		//path to draw circle / ball
+			ctx.arc(x,y,ballRadius,0,Math.PI*2);
+			ctx.fillStyle = "green";
+			ctx.fill()
+			ctx.closePath();
+		}
+		
+		function drawPaddle()	
+		{
+			ctx.beginPath();	//path to draw paddle
+			ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight)
+			ctx.fillStyle = "blue";
+			ctx.fill();
+			ctx.closePath();
+		}
+		
+		function drawScore()
+		{
+			ctx.beginPath();
+			ctx.font = "16px Ariel";
+			ctx.fillStyle = "blue";
+			ctx.fillText("Score: " + score, 8, 20);
+		}
+		
+		function drawLives()
+		{
+			ctx.beginPath();
+			ctx.font = "16px Ariel";
+			ctx.fillStyle = "blue";
+			ctx.fillText("Lives: " + lives, canvas.width - 70, 20);
+		}
+		
+		function brickImpactDetection()
+		{
+			for(var c = 0; c < brickColumnCount; c++)
+			{
+				for(var r = 0; r < brickRowCount; r++)
+				{
+					if(x + ballRadius > bricks[c][r].x && x - ballRadius < bricks[c][r].x + brickWidth)	//if ball is within coordinates of a bricks x axis
+					{
+						if(y + ballRadius >= bricks[c][r].y && y + ballRadius <= bricks[c][r].y + 3.5
+								|| y - ballRadius >= bricks[c][r].y + brickHeight -3.5 && y - ballRadius <= bricks[c][r].y + brickHeight)	
+						{
+							dy = -dy;	//ball bounces off top or bottom of brick
+							
+							bricks[c][r].alive = false;	//brick dissapears
+							score++;	//score increases
+							
+							//win condition
+							if(score == brickColumnCount * brickRowCount)
+							{
+								dx = 0;
+								dy = 0;
+								alert("YOU WIN!");
+								document.location.reload();
+							}
+							return;
+						}
+					
+						else if(y + ballRadius > bricks[c][r].y + 3.5 && y - ballRadius < bricks[c][r].y + brickHeight - 3.5)
+						{
+							dx = -dx;	//ball bounces off side of brick
+							
+							bricks[c][r].alive = false;	//brick dissapears
+							score++;	//score increases
+							
+							//win condition
+							if(score == brickColumnCount * brickRowCount)
+							{
+								dx = 0;
+								dy = 0;
+								alert("YOU WIN!");
+								document.location.reload();
+							}
+							return;
+						}
+					}	//end if
+				}	//end row for
+			}	//end column for
+		}
+		
+		function draw()
+		{
+			ctx.clearRect(0,0,canvas.width,canvas.height);	// to clear canvas between each iteration
+			
+			//draw structures
+			drawBricks();
+			drawBall();
+			drawPaddle();
+			drawScore();
+			drawLives();
+			brickImpactDetection();
+			
+			//logic for ball:
+			if(y + dy - ballRadius < 0) 	//if ball hits the ceiling
+				dy = -dy;
+			else if(y + dy + ballRadius > canvas.height)
+			{
+				if(x + ballRadius > paddleX && x - ballRadius < paddleX + paddleWidth)
+					dy = -dy;
+				else
+				{	
+					if(lives > 0)
+					{
+						lives--;	//lose a life
+						console.log("lost life");
+						
+						x = canvas.width/2;	//reset ball position
+						y = canvas.height -30;
+						
+						dx = 3.5;	//reset ball movement pattern
+						dy = -3.5;
+						
+						paddleX = (canvas.width-paddleWidth)/2;	//reset paddle position
+						
+					}
+					else
+					{
+						dx = 0;
+						dy = 0;
+						alert("GAME OVER");
+						document.location.reload();
+					}
+				}
+			}
+			
+			if(x + dx + ballRadius > canvas.width || x + dx - ballRadius < 0)	//if the ball hits the walls
+				dx = -dx;
+			
+			//logic for the paddle:
+			if(rightPressed && paddleX < canvas.width - paddleWidth)
+				paddleX += 7;
+			
+			else if(leftPressed && paddleX > 0)
+				paddleX -= 7;
+			
+			y += dy;	//ball movement for next iteration
+			x += dx;
+			
+			requestAnimationFrame(draw);
+		}
+		
+		draw();
+	</script>
+	<div class = "container-fluid">
+		<h2 style = "text-align:center;">Use left and right arrow keys to control the paddle!</h2>
+	</div>
+</body>
+</html>
